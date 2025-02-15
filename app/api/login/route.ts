@@ -8,7 +8,7 @@ const client = new MongoClient(uri);
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password } = await req.json() || {};
+    const { email, password } = await req.json();
 
     if (!email || !password) {
       return NextResponse.json({ message: "Email and password are required." }, { status: 400 });
