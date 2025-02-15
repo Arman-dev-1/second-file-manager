@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MongoClient } from "mongodb";
 import bcrypt from "bcrypt";
-import { cookies } from "next/headers";
 
 const uri = process.env.MONGODB_URI as string;
 const client = new MongoClient(uri);
