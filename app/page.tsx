@@ -5,6 +5,7 @@ import * as XLSX from "xlsx";
 import mammoth from "mammoth";
 import { useRouter } from "next/navigation";
 
+
 export default function UploadPage() {
   const [files, setFiles] = useState<File[]>([]);
   const [previewData, setPreviewData] = useState<any[]>([]);
@@ -14,15 +15,16 @@ export default function UploadPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Fetch the authentication token from localStorage or API
-    const storedToken = localStorage.getItem("authToken");
-    if (!storedToken) {
-      router.push("/login");
-      return;
+    if (typeof window !== "undefined") {
+        const storedToken = localStorage.getItem("authToken");
+        if (!storedToken) {
+            router.push("/login");
+            return;
+        }
+        setUserToken(storedToken);
+        fetchDocuments(storedToken);
     }
-    setUserToken(storedToken);
-    fetchDocuments(storedToken);
-  }, []);
+}, []);
 
   const fetchDocuments = async (token: string) => {
     try {

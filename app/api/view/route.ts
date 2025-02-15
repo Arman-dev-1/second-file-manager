@@ -1,28 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MongoClient, ObjectId } from "mongodb";
 
-const uri = process.env.MONGODB_URI as string;
+const uri = process.env.MONGODB_URI;
+if (!uri) {
+  throw new Error("MONGODB_URI is not defined in environment variables.");
+}
+
 const client = new MongoClient(uri);
+let isConnected = false;
 
 export async function GET(req: NextRequest) {
-  const token = req.headers.get("authorization")?.replace("Bearer ", "") || null;
-  if (!token) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  }
-
   try {
-    await client.connect();
+    const { searchParams } = new URL(req.url);
+    const documentId = searchParams.get("id");
+
+    if (!documentId) {
+      return NextResponse.json({ message: "Document ID is required" }, { status: 400 });
+    }
+
+    if (!isConnected) {
+      await client.connect();
+      isConnected = true;
+    }
+
     const database = client.db("documents");
     const collection = database.collection("data");
 
-    const document = await collection.findOne({ _id: new ObjectId(token) });
+    const document = await collection.findOne({ _id: new ObjectId(documentId) });
+
     if (!document) {
       return NextResponse.json({ message: "Document not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ content: document.content , type: document.type , name : document.name , sheetNames : document.sheetNames , data:document});
+    return NextResponse.json({ document }, { status: 200 });
   } catch (error) {
     console.error("Error fetching document:", error);
-    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ message: "Failed to fetch document" }, { status: 500 });
   }
 }

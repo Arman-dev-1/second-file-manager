@@ -1,16 +1,24 @@
 "use client";
-
 import { useState, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 
 function DocumentViewer() {
   const searchParams = useSearchParams();
-  const url = new URL(window.location.href);
-  const token = url.pathname.split('/').slice(-1)[0];
-//   const token = searchParams.get("token");
-console.log(token);
+  const router = useRouter();
+
+  const [token, setToken] = useState<string | null>(null);
   const [documentData, setDocumentData] = useState<any | null>(null);
   const [error, setError] = useState<string>("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      // Use query param if available, otherwise extract from URL path
+      const queryToken = searchParams.get("token");
+      const pathToken = window.location.pathname.split("/").pop(); // Last part of URL
+
+      setToken(queryToken || pathToken || null);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (!token) {
@@ -79,8 +87,7 @@ console.log(token);
 export default function ViewPage() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      {typeof window === "undefined" ? null : <DocumentViewer />}
+      <DocumentViewer />
     </Suspense>
   );
 }
-
