@@ -130,7 +130,7 @@ export default function UploadPage() {
         <p>Drag & drop a .docx or .xlsx file here, or click to upload</p>
       </div>
       {error && <p className="text-red-500 mt-2">{error}</p>}
-
+<div className="text-center mt-4 text-gray-500" >Do not copy link unless you have save the file</div>
       <table className="mt-4 w-full border-collapse border border-gray-300">
         <thead>
           <tr className="bg-gray-100">
